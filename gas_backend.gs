@@ -72,8 +72,10 @@ function digitsOnly_(raw) {
   return String(raw || '').replace(/\D/g, '');
 }
 
+// 'uc?export=view' 형태는 광고/추적 차단 확장 프로그램에 자주 걸려 이미지가 안 뜨는
+// 경우가 있어서, 구글 드라이브의 썸네일 전용 엔드포인트를 사용한다.
 function driveImageUrl_(fileId) {
-  return 'https://drive.google.com/uc?export=view&id=' + fileId;
+  return 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w1000';
 }
 
 /* ---------------- doGet (조회) ---------------- */
