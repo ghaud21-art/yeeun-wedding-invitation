@@ -221,11 +221,11 @@
   .loc-venue{margin:0;font-family:var(--serif);font-size:16px;color:var(--ink);}
   .loc-addr{margin:7px 0 0;font-size:12px;color:var(--ink-mid);}
   .map-box{
-    height:210px;border:1px solid var(--border-soft2);border-radius:4px;overflow:hidden;
-    background:repeating-linear-gradient(45deg,#EFEBDC 0 14px,#E9E4D2 14px 28px);
+    border:1px solid var(--border-soft2);border-radius:4px;overflow:hidden;
     display:flex;align-items:center;justify-content:center;
+    background:var(--bg-input);
   }
-  .map-box span{font-family:ui-monospace,monospace;font-size:10.5px;color:var(--ink-soft);letter-spacing:.06em;white-space:nowrap;}
+  .map-box .root_daum_roughmap{margin:0 auto !important;}
   .copy-addr-btn{
     width:100%;margin-top:11px;display:flex;align-items:center;justify-content:center;gap:8px;
     padding:12px;border:1px solid var(--border);border-radius:4px;background:var(--bg-input);
@@ -478,8 +478,17 @@
       <p class="loc-addr" id="addressText">서울특별시 강남구 테헤란로 123</p>
     </div>
     <div class="map-box reveal" id="kakaoMapEmbed">
-      <!-- 카카오맵 '퍼가기' iframe 코드를 이 안에 붙여넣으세요 -->
-      <span>지도 영역 (카카오맵 임베드)</span>
+      <!-- 카카오맵 약도 - 호텔 라뷔포레 (https://place.map.kakao.com/1397534731) -->
+      <div id="daumRoughmapContainer1787119492293" class="root_daum_roughmap root_daum_roughmap_landing"></div>
+      <script charset="UTF-8" class="daum_roughmap_loader_script" src="https://ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js"></script>
+      <script charset="UTF-8">
+        new daum.roughmap.Lander({
+          "timestamp" : "1787119492293",
+          "key" : "t8u76t5z5gy",
+          "mapWidth" : "360",
+          "mapHeight" : "240"
+        }).render();
+      </script>
     </div>
     <button class="copy-addr-btn reveal" id="copyAddrBtn"><span class="icon" data-icon="copy"></span><span id="copyAddrLabel">주소 복사하기</span></button>
     <div class="nav-btn-row reveal">
@@ -870,9 +879,12 @@ function initPeople(){
   document.getElementById('heroVenue').textContent = CFG.VENUE_NAME;
   document.getElementById('introCopy').innerHTML = CFG.INTRO_COPY;
 
+  function parentNames(father, mother){
+    return [father, mother].filter(Boolean).join(' · ');
+  }
   document.getElementById('parentsLine').innerHTML =
-    CFG.GROOM_FATHER+' · '+CFG.GROOM_MOTHER+' <span class="rel">의 '+CFG.GROOM_ORDER+'</span> <span class="child">'+CFG.GROOM_NAME.slice(-2)+'</span><br>'+
-    CFG.BRIDE_FATHER+' · '+CFG.BRIDE_MOTHER+' <span class="rel">의 '+CFG.BRIDE_ORDER+'</span> <span class="child">'+CFG.BRIDE_NAME.slice(-2)+'</span>';
+    parentNames(CFG.GROOM_FATHER, CFG.GROOM_MOTHER)+' <span class="rel">의 '+CFG.GROOM_ORDER+'</span> <span class="child">'+CFG.GROOM_NAME.slice(-2)+'</span><br>'+
+    parentNames(CFG.BRIDE_FATHER, CFG.BRIDE_MOTHER)+' <span class="rel">의 '+CFG.BRIDE_ORDER+'</span> <span class="child">'+CFG.BRIDE_NAME.slice(-2)+'</span>';
 
   document.getElementById('venueName').textContent = CFG.VENUE_NAME;
   document.getElementById('addressText').textContent = CFG.ADDRESS;
