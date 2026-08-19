@@ -369,8 +369,8 @@
   .secret-label{margin:0;font-family:var(--serif);font-size:10.5px;letter-spacing:.34em;color:#B9C4A4;}
   .secret-script{margin:18px 0 0;font-family:var(--script);font-size:32px;color:#E9E4D4;}
   .secret-copy{margin:16px 0 0;font-family:var(--serif);font-size:13px;font-weight:300;line-height:2.2;color:#D9DEC8;}
-  .secret-photo{margin:26px auto 0;width:100%;aspect-ratio:4/3;border-radius:6px;background:repeating-linear-gradient(45deg,rgba(255,255,255,.08) 0 14px,rgba(255,255,255,.04) 14px 28px);display:flex;align-items:center;justify-content:center;}
-  .secret-photo span{font-family:ui-monospace,monospace;font-size:10.5px;color:#B9C4A4;}
+  .secret-photo{margin:26px auto 0;width:78%;max-width:280px;display:flex;align-items:center;justify-content:center;}
+  .secret-photo img{width:100%;filter:drop-shadow(0 6px 18px rgba(0,0,0,.35));}
   .secret-close{margin-top:26px;padding:10px 26px;border:1px solid rgba(244,240,227,.4);border-radius:999px;background:none;color:#F4F0E3;font-size:12px;letter-spacing:.08em;}
 
   /* ---------- 토스트 (dev/시스템 알림 전용) ---------- */
@@ -689,7 +689,7 @@
     <p class="secret-label">SECRET PAGE</p>
     <p class="secret-script">You found us</p>
     <p class="secret-copy" id="secretCopy">여기까지 찾아와 준 당신에게만<br>들려주고 싶은 이야기가 있어요.<br>우리가 처음 만난 날의 풀냄새,<br>그 계절의 기록을 담았습니다.</p>
-    <div class="secret-photo"><span>비공개 사진 · 영상 영역</span></div>
+    <div class="secret-photo"><img src="열린 자물쇠.png" alt=""></div>
     <button class="secret-close" id="secretCloseBtn">돌아가기</button>
   </div>
 </div>
@@ -703,7 +703,7 @@
    0. 설정값 (CONFIG) — 실제 값으로 채워 넣으세요
    ============================================================ */
 const CFG = {
-  GAS_URL:    'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec',
+  GAS_URL:    'https://script.google.com/macros/s/AKfycbxmS-R4Bhe09Q85FYbDE6zkblHcPB1nW9K6u1yKhhSzqlvxlftHrAj2wbHB3PdGOYGNhA/exec',
   KAKAO_KEY:  'YOUR_KAKAO_JS_KEY',
   WEDDING:    new Date('2027-05-22T14:00:00'),
 
@@ -740,7 +740,7 @@ const CFG = {
   },
 
   // 갤러리 속 숫자 힌트를 모두 모으면 나오는 비밀번호. 비워두면 예식 날짜(월+일)로 자동 생성됩니다.
-  SECRET_PASSWORD: '',
+  SECRET_PASSWORD: '0522',
   SECRET_MESSAGE: '여기까지 찾아와 준 당신에게만<br>들려주고 싶은 이야기가 있어요.<br>우리가 처음 만난 날의 풀냄새,<br>그 계절의 기록을 담았습니다.'
 };
 
@@ -1012,7 +1012,7 @@ function initLocation(){
    ============================================================ */
 const TAB_HINTS = ['봄에 함께한 순간들이 들어갈 자리입니다', '여름에 함께한 순간들이 들어갈 자리입니다', '가을에 함께한 순간들이 들어갈 자리입니다', '겨울에 함께한 순간들이 들어갈 자리입니다'];
 const TAB_COUNTS = [9, 9, 9, 9];
-const CLUE_MAP = { 1:'1', 3:'1', 5:'2', 7:'2' };
+const CLUE_MAP = { 1:'0', 3:'5', 5:'2', 7:'2' };
 
 function secretPassword(){
   if(CFG.SECRET_PASSWORD) return CFG.SECRET_PASSWORD;

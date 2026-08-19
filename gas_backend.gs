@@ -1,10 +1,11 @@
 /**
  * 모바일 청첩장 GAS 백엔드
  * 배포 방법:
- *   1) 아래 CONFIG 값을 실제 스프레드시트 ID / 드라이브 폴더 ID / Make Webhook URL로 채운다.
- *   2) 배포 > 웹 앱으로 배포, 액세스 권한: '전체' (누구나), 실행 계정: '나'
- *   3) 배포된 /exec URL을 index.html의 CFG.GAS_URL 에 넣는다.
- *   4) GALLERY_FOLDER 하위에 '봄' / '여름' / '가을' / '겨울' 이름의 서브폴더를 만든다.
+ *   1) 아래 SHEET_ID / GALLERY_FOLDER / GUEST_FOLDER는 이미 채워져 있음(구글 드라이브에 자동 생성됨).
+ *      MAKE_WEBHOOK만 필요하면 채운다.
+ *   2) script.google.com에서 새 프로젝트를 만들고 이 파일 내용을 붙여넣는다.
+ *   3) 배포 > 웹 앱으로 배포, 액세스 권한: '전체' (누구나), 실행 계정: '나'
+ *   4) 배포된 /exec URL을 index.html의 CFG.GAS_URL 에 넣는다.
  *
  * 시트 탭은 첫 조회/저장 시 자동으로 만들어지고, 그중 '설정'과 '계좌' 탭은
  * 처음 만들어질 때 예시 값이 자동으로 채워진다. 스프레드시트를 열어 그 값을
@@ -16,9 +17,9 @@
  *   - 계좌: 측 | 관계 | 이름 | 은행 | 계좈번호
  */
 
-const SHEET_ID       = 'YOUR_SHEET_ID';
-const GALLERY_FOLDER = 'YOUR_GALLERY_FOLDER_ID';
-const GUEST_FOLDER   = 'YOUR_GUEST_FOLDER_ID';
+const SHEET_ID       = '1ILxUsi45jWYk8zIt1UrmVUMmu4OIY5ghSEJBETHEARc'; // "예은이 청첩장 데이터" 스프레드시트
+const GALLERY_FOLDER = '1WrPSohG8a26JBYpMrHVU_CWqMYVFw6eq'; // "예은이 청첩장 - 갤러리" (봄/여름/가을/겨울 하위 폴더 포함)
+const GUEST_FOLDER   = '1O9aOtl2yP6gcg83p6m5wlFDbAuP6N5jH'; // "예은이 청첩장 - 하객사진"
 const MAKE_WEBHOOK   = 'YOUR_MAKE_WEBHOOK_URL';
 
 const SHEET_GUESTBOOK = '방명록';
@@ -132,6 +133,9 @@ function getGuestPhotos_() {
 // 처음 조회되어 시트가 새로 만들어졌다면 예시 값을 함께 채워 넣는다.
 function getConfigMap_() {
   const sheet = getSheet_(SHEET_CONFIG, [['항목', '내용', '입력 예시']]);
+  // '내용' 열을 텍스트 서식으로 고정해서 날짜/시간을 입력해도 구글 시트가
+  // Date로 자동 변환하지 않게 한다(자동 변환 시 시간대 오차로 값이 틀어짐).
+  sheet.getRange('B2:B1000').setNumberFormat('@');
   if (sheet.getLastRow() <= 1) seedDefaultConfig_(sheet);
   const values = sheet.getDataRange().getValues();
   const map = {};
@@ -140,8 +144,8 @@ function getConfigMap_() {
     if (!key) continue;
     let val = values[i][1];
     if (val instanceof Date) {
-      // 날짜/시간으로 인식된 셀은 타임존 오차 없이 그대로 쓸 수 있게 문자열로 변환
-      val = Utilities.formatDate(val, Session.getScriptTimeZone(), "yyyy-MM-dd'T'HH:mm");
+      // 그래도 Date로 인식된 셀(붙여넣기 등)은 UTC 기준으로 읽어 시간대 오차를 피한다.
+      val = Utilities.formatDate(val, 'UTC', "yyyy-MM-dd'T'HH:mm");
     }
     map[key] = (val === undefined || val === null) ? '' : String(val).trim();
   }
