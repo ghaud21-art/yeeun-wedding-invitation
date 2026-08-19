@@ -406,7 +406,7 @@
       <div class="hero__photo-inner" id="heroPhotoInner"><span>메인 사진 (hero.jpg)</span></div>
     </div>
 
-    <p class="hero__date" id="heroDate">2026. 11. 22. SUNDAY 12:00</p>
+    <p class="hero__date" id="heroDate">2027. 05. 22. SATURDAY 17:00</p>
     <p class="hero__venue" id="heroVenue">호텔 라뷔포레</p>
     <div class="scroll-hint" aria-hidden="true">
       <span class="icon" data-icon="arrowDown"></span>
@@ -1268,7 +1268,8 @@ async function gasPost(payload){
 /* ============================================================
    13. 계좌 아코디언
    ============================================================ */
-function initAccounts(){
+// CFG.ACCOUNTS이 바뀔 때마다(원격 설정 로딩 후 등) 다시 불러도 안전하게 목록만 새로 그립니다.
+function renderAccountsList(){
   function renderAccounts(el, list){
     el.innerHTML = '';
     list.forEach(a=>{
@@ -1299,7 +1300,11 @@ function initAccounts(){
   }
   renderAccounts(document.getElementById('accGroomBody'), CFG.ACCOUNTS.groom);
   renderAccounts(document.getElementById('accBrideBody'), CFG.ACCOUNTS.bride);
+}
 
+// 아코디언 헤더 클릭 토글은 한 번만 연결하면 됩니다(중복 연결 시 클릭이 무효화됨).
+function initAccounts(){
+  renderAccountsList();
   document.querySelectorAll('.acc-head').forEach(head=>{
     head.addEventListener('click', ()=>{
       document.getElementById(head.dataset.acc).classList.toggle('open');
@@ -1412,13 +1417,18 @@ function initAccounts(){
    18. 부트스트랩 — 구글 시트 값을 먼저 불러온 뒤 화면을 채웁니다
    ============================================================ */
 (async function boot(){
-  loadMainPhoto();
-  await loadRemoteConfig();
+  // 코딩된 기본값으로 먼저 즉시 화면을 채웁니다(네트워크를 기다리지 않음).
   initPeople();
   initCountdown();
   initCalendar();
   initLocation();
   initAccounts();
+  loadMainPhoto();
+  // 구글 시트 값을 불러오는 데 성공하면 바뀐 내용만 다시 그립니다.
+  await loadRemoteConfig();
+  initPeople();
+  initCalendar();
+  renderAccountsList();
 })();
 </script>
 </body>
