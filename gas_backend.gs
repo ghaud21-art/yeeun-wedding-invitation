@@ -152,9 +152,10 @@ function getConfigMap_() {
   return map;
 }
 
-// '계좌' 탭(측 | 관계 | 이름 | 은행 | 계좈번호)을 { groom:[...], bride:[...] } 형태로 반환.
+// '계좌' 탭(측 | 관계 | 이름 | 은행 | 계좈번호 | 카카오페이 링크)을 { groom:[...], bride:[...] } 형태로 반환.
+// 카카오페이 링크는 각 행마다 있을 수도 없을 수도 있고, 비어 있으면 화면에 버튼이 뜨지 않는다.
 function getAccountsMap_() {
-  const sheet = getSheet_(SHEET_ACCOUNTS, [['측', '관계', '이름', '은행', '계좈번호']]);
+  const sheet = getSheet_(SHEET_ACCOUNTS, [['측', '관계', '이름', '은행', '계좈번호', '카카오페이 링크']]);
   if (sheet.getLastRow() <= 1) seedDefaultAccounts_(sheet);
   const values = sheet.getDataRange().getValues();
   const accounts = { groom: [], bride: [] };
@@ -162,7 +163,7 @@ function getAccountsMap_() {
     const r = values[i];
     const side = String(r[0] || '').trim();
     if (!side) continue;
-    const entry = { who: String(r[1] || ''), name: String(r[2] || ''), bank: String(r[3] || ''), num: String(r[4] || '') };
+    const entry = { who: String(r[1] || ''), name: String(r[2] || ''), bank: String(r[3] || ''), num: String(r[4] || ''), kakaopay: String(r[5] || '').trim() };
     if (!entry.bank && !entry.num) continue; // 은행/계좌를 안 채운 행은 화면에 노출하지 않음
     if (side.indexOf('신랑') === 0) accounts.groom.push(entry);
     else if (side.indexOf('신부') === 0) accounts.bride.push(entry);
@@ -182,6 +183,7 @@ function seedDefaultConfig_(sheet) {
     ['신부측 순서', '장녀', '장녀 / 차녀 / 삼녀 등'],
     ['예식 날짜', '2027-05-22', 'YYYY-MM-DD'],
     ['예식 시간', '14:00', '24시간제 HH:MM'],
+    ['소개 문구', '서로의 계절을 지나\n같은 방향을 바라보게 된 두 사람이\n이제 하나의 길을 걷고자 합니다.\n\n귀한 걸음으로 축복해 주시면\n더없는 기쁨으로 간직하겠습니다.', '줄바꿈은 셀 안에서 Alt+Enter'],
     ['예식장 이름', '라온컨벤션 3층 그랜드홀', ''],
     ['주소', '서울특별시 강남구 테헤란로 123', ''],
     ['카카오맵 링크', '', '카카오맵 앱에서 장소 공유 링크 복사'],

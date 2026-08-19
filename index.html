@@ -256,7 +256,6 @@
   }
   .gallery-tile img{width:100%;height:100%;object-fit:cover;}
   .clue-digit{position:absolute;right:6px;bottom:4px;font-family:var(--serif);font-size:11px;color:rgba(110,106,88,.55);}
-  .gallery-hint{margin:16px 0 0;text-align:center;font-size:11px;color:var(--ink-soft);}
   .key-btn-row{display:flex;justify-content:center;margin-top:12px;}
   .key-btn{border:none;background:none;padding:6px;opacity:.55;transition:opacity .3s;}
   .key-btn:hover{opacity:1;}
@@ -289,7 +288,7 @@
   .rsvp-inputs input{padding:11px;border:1px solid var(--border);border-radius:4px;font-size:12.5px;background:var(--bg-input);color:var(--ink);}
   .rsvp-inputs .fname{flex:1;min-width:0;}
   .rsvp-inputs .fphone{flex:1.3;min-width:0;}
-  .rsvp-inputs .fcomp{width:78px;flex:none;}
+  .fcomp{width:78px;padding:11px;border:1px solid var(--border);border-radius:4px;font-size:12.5px;background:var(--bg-input);color:var(--ink);}
   .rsvp-error{margin:0;font-size:11px;color:var(--red);min-height:14px;}
   .rsvp-submit{
     width:100%;padding:14px;border:none;border-radius:4px;background:var(--red);color:var(--bg-card);
@@ -421,7 +420,7 @@
       <span class="eyebrow-heart">♥</span>
     </div>
     <p class="intro__script reveal">Every moment with you</p>
-    <p class="intro__copy reveal">서로의 계절을 지나<br>같은 방향을 바라보게 된 두 사람이<br>이제 하나의 길을 걷고자 합니다.<br><br>귀한 걸음으로 축복해 주시면<br>더없는 기쁨으로 간직하겠습니다.</p>
+    <p class="intro__copy reveal" id="introCopy"></p>
     <img class="intro__rose reveal" src="넝쿨장미 1.png" alt="">
     <p class="intro__parents reveal" id="parentsLine"></p>
   </section>
@@ -535,7 +534,6 @@
       <button class="tab-btn" data-tab="winter">겨울</button>
     </div>
     <div class="gallery-grid reveal" id="galleryGrid"></div>
-    <p class="gallery-hint" id="galleryHint">본식 스냅 사진이 들어갈 자리입니다</p>
     <div class="key-btn-row reveal">
       <button class="key-btn" id="openPwBtn" aria-label="숨겨진 이야기 열기">
         <img src="열쇠.png" alt="">
@@ -599,7 +597,10 @@
       <div class="rsvp-inputs">
         <input type="text" class="fname" id="atName" placeholder="성함" required>
         <input type="tel" class="fphone" id="atPhone" placeholder="연락처" maxlength="13" required>
-        <input type="number" class="fcomp" id="atCompanions" placeholder="동행 인원" min="0" value="0">
+      </div>
+      <div class="rsvp-field">
+        <label for="atCompanions">본인 포함 동행인원</label>
+        <input type="number" class="fcomp" id="atCompanions" min="1" value="1">
       </div>
       <p class="rsvp-error" id="rsvpError"></p>
       <button type="submit" class="rsvp-submit" id="rsvpSubmit">참석 의사 전달하기</button>
@@ -707,9 +708,11 @@ const CFG = {
   KAKAO_KEY:  'YOUR_KAKAO_JS_KEY',
   WEDDING:    new Date('2027-05-22T14:00:00'),
 
-  GROOM_NAME: '김도윤', BRIDE_NAME: '이서연',
-  GROOM_FATHER: '김재현', GROOM_MOTHER: '박은주', GROOM_ORDER: '장남',
-  BRIDE_FATHER: '이성호', BRIDE_MOTHER: '최미란', BRIDE_ORDER: '장녀',
+  GROOM_NAME: '구정훈', BRIDE_NAME: '김예은',
+  GROOM_FATHER: '구건표', GROOM_MOTHER: '박영현', GROOM_ORDER: '장남',
+  BRIDE_FATHER: '', BRIDE_MOTHER: '김민진', BRIDE_ORDER: '장녀',
+
+  INTRO_COPY: '서로의 계절을 지나<br>같은 방향을 바라보게 된 두 사람이<br>이제 하나의 길을 걷고자 합니다.<br><br>귀한 걸음으로 축복해 주시면<br>더없는 기쁨으로 간직하겠습니다.',
 
   VENUE_NAME: '라온컨벤션 3층 그랜드홀',
   ADDRESS:    '서울특별시 강남구 테헤란로 123',
@@ -725,17 +728,15 @@ const CFG = {
     parking: '건물 지하 B1~B3<br>2시간 무료'
   },
 
-  KAKAOPAY_LINK: '(카카오페이 링크 추후 입력)',
   ACCOUNTS: {
     groom: [
-      { who:'신랑', name:'김도윤', bank:'신한은행', num:'110-234-567890' },
-      { who:'父', name:'김재현', bank:'(은행명)', num:'(계좌번호 추후 입력)' },
-      { who:'母', name:'박은주', bank:'(은행명)', num:'(계좌번호 추후 입력)' }
+      { who:'신랑', name:'구정훈', bank:'신한은행', num:'110-234-567890' },
+      { who:'父', name:'구건표', bank:'(은행명)', num:'(계좌번호 추후 입력)' },
+      { who:'母', name:'박영현', bank:'(은행명)', num:'(계좌번호 추후 입력)' }
     ],
     bride: [
-      { who:'신부', name:'이서연', bank:'국민은행', num:'012-34-5678-901' },
-      { who:'父', name:'이성호', bank:'(은행명)', num:'(계좌번호 추후 입력)' },
-      { who:'母', name:'최미란', bank:'(은행명)', num:'(계좌번호 추후 입력)' }
+      { who:'신부', name:'김예은', bank:'국민은행', num:'012-34-5678-901' },
+      { who:'母', name:'김민진', bank:'(은행명)', num:'(계좌번호 추후 입력)' }
     ]
   },
 
@@ -815,8 +816,7 @@ const CONFIG_LABELS = {
   '신랑 아버지':'GROOM_FATHER', '신랑 어머니':'GROOM_MOTHER', '신랑측 순서':'GROOM_ORDER',
   '신부 아버지':'BRIDE_FATHER', '신부 어머니':'BRIDE_MOTHER', '신부측 순서':'BRIDE_ORDER',
   '예식장 이름':'VENUE_NAME', '주소':'ADDRESS',
-  '카카오맵 링크':'KAKAO_NAV', '네이버지도 링크':'NAVER_NAV', '티맵 링크':'TMAP_NAV',
-  '카카오페이 링크':'KAKAOPAY_LINK'
+  '카카오맵 링크':'KAKAO_NAV', '네이버지도 링크':'NAVER_NAV', '티맵 링크':'TMAP_NAV'
 };
 const TRANSPORT_LABELS = { '지하철 안내':'subway', '버스 안내':'bus', '자가용 안내':'car', '주차 안내':'parking' };
 
@@ -828,14 +828,17 @@ async function loadRemoteConfig(){
     if(!data || !data.ok) return;
     const cfg = data.config || {};
 
+    // 시트에 행 자체가 없으면(값이 undefined) 기본값을 유지하고,
+    // 행은 있는데 칸을 일부러 비워뒀다면(빈 문자열) 기본값 대신 빈 값으로 덮어씁니다.
     Object.keys(CONFIG_LABELS).forEach(label=>{
       const val = cfg[label];
-      if(val) CFG[CONFIG_LABELS[label]] = String(val).trim();
+      if(val !== undefined) CFG[CONFIG_LABELS[label]] = String(val).trim();
     });
     Object.keys(TRANSPORT_LABELS).forEach(label=>{
       const val = cfg[label];
-      if(val) CFG.TRANSPORT[TRANSPORT_LABELS[label]] = String(val).trim().replace(/\n/g,'<br>');
+      if(val !== undefined) CFG.TRANSPORT[TRANSPORT_LABELS[label]] = String(val).trim().replace(/\n/g,'<br>');
     });
+    if(cfg['소개 문구'] !== undefined) CFG.INTRO_COPY = String(cfg['소개 문구']).trim().replace(/\n/g,'<br>');
     const dateStr = cfg['예식 날짜'], timeStr = cfg['예식 시간'];
     if(dateStr){
       const parsed = new Date(dateStr + 'T' + (timeStr || '00:00') + ':00');
@@ -865,6 +868,7 @@ function initPeople(){
   document.getElementById('heroDate').textContent =
     w.getFullYear()+'. '+String(w.getMonth()+1).padStart(2,'0')+'. '+String(w.getDate()).padStart(2,'0')+'. '+dowEN+' '+hh12+':'+String(w.getMinutes()).padStart(2,'0');
   document.getElementById('heroVenue').textContent = CFG.VENUE_NAME;
+  document.getElementById('introCopy').innerHTML = CFG.INTRO_COPY;
 
   document.getElementById('parentsLine').innerHTML =
     CFG.GROOM_FATHER+' · '+CFG.GROOM_MOTHER+' <span class="rel">의 '+CFG.GROOM_ORDER+'</span> <span class="child">'+CFG.GROOM_NAME.slice(-2)+'</span><br>'+
@@ -1010,7 +1014,6 @@ function initLocation(){
 /* ============================================================
    8. 갤러리 (숨은 힌트 포함)
    ============================================================ */
-const TAB_HINTS = ['봄에 함께한 순간들이 들어갈 자리입니다', '여름에 함께한 순간들이 들어갈 자리입니다', '가을에 함께한 순간들이 들어갈 자리입니다', '겨울에 함께한 순간들이 들어갈 자리입니다'];
 const TAB_COUNTS = [9, 9, 9, 9];
 const CLUE_MAP = { 1:'0', 3:'5', 5:'2', 7:'2' };
 
@@ -1023,7 +1026,6 @@ function secretPassword(){
 
 (function initGallery(){
   const grid = document.getElementById('galleryGrid');
-  const hintEl = document.getElementById('galleryHint');
   const tabs = document.querySelectorAll('.tab-btn');
   let currentTabIdx = 0;
 
@@ -1051,7 +1053,6 @@ function secretPassword(){
 
   async function loadTab(tabIdx, tabKey){
     currentTabIdx = tabIdx;
-    hintEl.textContent = TAB_HINTS[tabIdx];
     if(!gasReady){ renderTiles(null, tabIdx); return; }
     try{
       const res = await fetch(CFG.GAS_URL+'?action=gallery&tab='+encodeURIComponent(tabKey));
@@ -1247,8 +1248,7 @@ function initAccounts(){
       const row = document.createElement('div'); row.className='acc-row-in';
       row.innerHTML =
         '<div class="acc-info"><div><p class="acc-bank"></p><p class="acc-num"></p></div>'+
-        '<button class="acc-copy"><span class="icon" data-icon="copy"></span><span class="lbl">복사</span></button></div>'+
-        '<button class="acc-kakaopay">카카오페이로 보내기</button>';
+        '<button class="acc-copy"><span class="icon" data-icon="copy"></span><span class="lbl">복사</span></button></div>';
       row.querySelector('.acc-bank').textContent = a.bank + (a.who && a.who.length<=1 ? '' : ' · '+a.who);
       row.querySelector('.acc-num').textContent = a.num;
       row.querySelector('.acc-copy .icon').innerHTML = ICONS.copy;
@@ -1260,10 +1260,13 @@ function initAccounts(){
         lbl.textContent = '복사됨';
         setTimeout(()=>{ lbl.textContent = '복사'; }, 1600);
       });
-      row.querySelector('.acc-kakaopay').addEventListener('click', ()=>{
-        if(CFG.KAKAOPAY_LINK.indexOf('추후 입력')>-1){ showToast('카카오페이 링크 설정이 필요합니다'); return; }
-        window.open(CFG.KAKAOPAY_LINK, '_blank');
-      });
+      // 카카오페이 링크는 계좌 시트에 값이 있는 경우에만 버튼을 보여줍니다.
+      if(a.kakaopay){
+        const payBtn = document.createElement('button');
+        payBtn.className='acc-kakaopay'; payBtn.textContent='카카오페이로 보내기';
+        payBtn.addEventListener('click', ()=>window.open(a.kakaopay, '_blank'));
+        row.appendChild(payBtn);
+      }
       el.appendChild(row);
     });
   }
