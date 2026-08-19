@@ -870,6 +870,7 @@ async function loadMainPhoto(){
     const res = await fetch(CFG.GAS_URL+'?action=mainPhoto');
     const data = await res.json();
     if(data && data.ok && data.url){
+      CFG.MAIN_PHOTO_URL = data.url; // 카카오톡 공유 썸네일에도 이 사진을 사용합니다.
       document.getElementById('heroPhotoInner').style.backgroundImage =
         "url('"+data.url+"'), url('hero.jpg')";
     }
@@ -1384,7 +1385,7 @@ function initAccounts(){
       content:{
         title: CFG.GROOM_NAME+' ♥ '+CFG.BRIDE_NAME+' 결혼합니다',
         description: CFG.WEDDING.getFullYear()+'년 '+(CFG.WEDDING.getMonth()+1)+'월 '+CFG.WEDDING.getDate()+'일',
-        imageUrl: location.origin + location.pathname.replace(/index\\.html$/,'') + 'hero.jpg',
+        imageUrl: CFG.MAIN_PHOTO_URL || (location.origin + location.pathname.replace(/index\.html$/,'') + 'hero.jpg'),
         link:{ mobileWebUrl: CFG.PAGE_URL, webUrl: CFG.PAGE_URL }
       },
       buttons:[{ title:'청첩장 보기', link:{ mobileWebUrl: CFG.PAGE_URL, webUrl: CFG.PAGE_URL } }]
