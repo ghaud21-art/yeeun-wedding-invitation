@@ -122,7 +122,9 @@
   .bgm-btn:active{transform:scale(.92);}
   .bgm-btn.playing{color:var(--red);}
   .bgm-btn .icon{width:16px;height:16px;}
-  .hero__lock-icon{width:76px;margin-top:8px;flex:none;mix-blend-mode:multiply;}
+  .hero__emblem{display:flex;align-items:center;justify-content:center;gap:2px;margin-top:8px;flex:none;position:relative;z-index:3;}
+  .hero__emblem img{width:52px;mix-blend-mode:multiply;}
+  .hero__emblem img.key{width:44px;transform:rotate(-18deg) translateY(4px);}
   .hero__script{margin:6px 0 0;font-family:var(--script);font-size:32px;color:var(--gold);line-height:1.2;white-space:nowrap;flex:none;}
   .hero__names{margin:8px 0 0;font-family:var(--serif);font-size:16px;letter-spacing:.22em;color:var(--ink);white-space:nowrap;flex:none;}
   .hero__names .heart{color:var(--pink);font-size:12px;vertical-align:2px;}
@@ -394,7 +396,10 @@
     </div>
     <button class="bgm-btn" id="bgmBtn" aria-label="배경음악 재생/정지" style="z-index:6"></button>
 
-    <img class="hero__lock-icon" src="자물쇠.png" alt="" style="z-index:3;position:relative">
+    <div class="hero__emblem">
+      <img class="key" src="열쇠.png" alt="">
+      <img src="자물쇠.png" alt="">
+    </div>
     <p class="hero__script" style="z-index:3;position:relative">Wedding Invitation</p>
     <p class="hero__names" style="z-index:3;position:relative"><span id="heroGroom">김도윤</span> <span class="heart">♥</span> <span id="heroBride">이서연</span></p>
 
@@ -524,9 +529,10 @@
   <section id="gallery">
     <p class="section-title reveal">우리의 순간들</p>
     <div class="tab-row reveal">
-      <button class="tab-btn active" data-tab="snap">스냅사진</button>
-      <button class="tab-btn" data-tab="daily">일상</button>
-      <button class="tab-btn" data-tab="travel">여행</button>
+      <button class="tab-btn active" data-tab="spring">봄</button>
+      <button class="tab-btn" data-tab="summer">여름</button>
+      <button class="tab-btn" data-tab="fall">가을</button>
+      <button class="tab-btn" data-tab="winter">겨울</button>
     </div>
     <div class="gallery-grid reveal" id="galleryGrid"></div>
     <p class="gallery-hint" id="galleryHint">본식 스냅 사진이 들어갈 자리입니다</p>
@@ -761,6 +767,8 @@ const ICONS = {
   navCheck: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="m8.5 12.5 2.5 2.5 4.5-5"></path></svg>',
   navGift: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="2"></rect><path d="M4 12h16"></path><path d="M12 8v12"></path><path d="M12 8c-4 0-4.5-4-2-4s2 4 2 4zm0 0c4 0 4.5-4 2-4s-2 4-2 4z"></path></svg>'
 };
+const gasReady = CFG.GAS_URL.indexOf('YOUR_SCRIPT_ID')===-1;
+
 document.querySelectorAll('[data-icon]').forEach(el=>{
   el.innerHTML = ICONS[el.getAttribute('data-icon')] || '';
 });
@@ -797,9 +805,55 @@ function fallbackCopy(text){
 }
 
 /* ============================================================
+   2.5 구글 시트 원격 설정 불러오기
+   시트의 '설정' 탭(항목/내용)과 '계좌' 탭(측/관계/이름/은행/계좈번호)을
+   읽어 CFG 값을 덮어씁니다. 시트가 비어 있거나 GAS_URL 미설정이면
+   위 CFG 기본값을 그대로 사용합니다.
+   ============================================================ */
+const CONFIG_LABELS = {
+  '신랑 이름':'GROOM_NAME', '신부 이름':'BRIDE_NAME',
+  '신랑 아버지':'GROOM_FATHER', '신랑 어머니':'GROOM_MOTHER', '신랑측 순서':'GROOM_ORDER',
+  '신부 아버지':'BRIDE_FATHER', '신부 어머니':'BRIDE_MOTHER', '신부측 순서':'BRIDE_ORDER',
+  '예식장 이름':'VENUE_NAME', '주소':'ADDRESS',
+  '카카오맵 링크':'KAKAO_NAV', '네이버지도 링크':'NAVER_NAV', '티맵 링크':'TMAP_NAV',
+  '카카오페이 링크':'KAKAOPAY_LINK'
+};
+const TRANSPORT_LABELS = { '지하철 안내':'subway', '버스 안내':'bus', '자가용 안내':'car', '주차 안내':'parking' };
+
+async function loadRemoteConfig(){
+  if(!gasReady) return;
+  try{
+    const res = await fetch(CFG.GAS_URL+'?action=config');
+    const data = await res.json();
+    if(!data || !data.ok) return;
+    const cfg = data.config || {};
+
+    Object.keys(CONFIG_LABELS).forEach(label=>{
+      const val = cfg[label];
+      if(val) CFG[CONFIG_LABELS[label]] = String(val).trim();
+    });
+    Object.keys(TRANSPORT_LABELS).forEach(label=>{
+      const val = cfg[label];
+      if(val) CFG.TRANSPORT[TRANSPORT_LABELS[label]] = String(val).trim().replace(/\n/g,'<br>');
+    });
+    const dateStr = cfg['예식 날짜'], timeStr = cfg['예식 시간'];
+    if(dateStr){
+      const parsed = new Date(dateStr + 'T' + (timeStr || '00:00') + ':00');
+      if(!isNaN(parsed.getTime())) CFG.WEDDING = parsed;
+    }
+    const acc = data.accounts;
+    if(acc && ((acc.groom && acc.groom.length) || (acc.bride && acc.bride.length))){
+      CFG.ACCOUNTS = acc;
+    }
+  }catch(err){
+    // 원격 설정을 불러오지 못하면 기본값(CFG)을 그대로 사용합니다.
+  }
+}
+
+/* ============================================================
    3. 인물/예식 정보 바인딩
    ============================================================ */
-(function initPeople(){
+function initPeople(){
   document.getElementById('heroGroom').textContent = CFG.GROOM_NAME;
   document.getElementById('heroBride').textContent = CFG.BRIDE_NAME;
   document.title = CFG.GROOM_NAME + ' ♥ ' + CFG.BRIDE_NAME + ' 결혼합니다';
@@ -829,7 +883,7 @@ function fallbackCopy(text){
   document.getElementById('groomNameLbl').textContent = CFG.GROOM_NAME;
   document.getElementById('brideNameLbl').textContent = CFG.BRIDE_NAME;
   document.getElementById('secretCopy').innerHTML = CFG.SECRET_MESSAGE;
-})();
+}
 
 /* ============================================================
    4. 스크롤 reveal + 챕터 구분선 unlock + 하단 네비 active
@@ -887,7 +941,7 @@ const lockBadges = document.querySelectorAll('.lock-badge');
 /* ============================================================
    5. D-Day 카운트다운
    ============================================================ */
-(function initCountdown(){
+function initCountdown(){
   const $d=document.getElementById('ddDay'), $h=document.getElementById('ddHour'),
         $m=document.getElementById('ddMin'), $s=document.getElementById('ddSec');
   const $foot = document.getElementById('ddFoot');
@@ -905,12 +959,13 @@ const lockBadges = document.querySelectorAll('.lock-badge');
   }
   tick();
   setInterval(tick, 1000);
-})();
+}
 
 /* ============================================================
    6. 달력
    ============================================================ */
-(function initCalendar(){
+function initCalendar(){
+  document.getElementById('calGrid').innerHTML = '';
   const y = CFG.WEDDING.getFullYear(), m = CFG.WEDDING.getMonth(), targetDate = CFG.WEDDING.getDate();
   const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   document.getElementById('calScript').textContent = monthNames[m];
@@ -937,12 +992,12 @@ const lockBadges = document.querySelectorAll('.lock-badge');
   const hh24 = CFG.WEDDING.getHours(), hh12 = ((hh24+11)%12)+1, ampmKR = hh24<12?'오전':'오후';
   document.getElementById('calFoot').textContent =
     (m+1)+'월 '+targetDate+'일 '+dowKR+'요일 '+ampmKR+' '+hh12+'시'+(CFG.WEDDING.getMinutes()?' '+CFG.WEDDING.getMinutes()+'분':'');
-})();
+}
 
 /* ============================================================
    7. 주소 복사
    ============================================================ */
-(function initLocation(){
+function initLocation(){
   const btn = document.getElementById('copyAddrBtn');
   const label = document.getElementById('copyAddrLabel');
   btn.addEventListener('click', ()=>{
@@ -950,13 +1005,13 @@ const lockBadges = document.querySelectorAll('.lock-badge');
     label.textContent = '주소가 복사되었습니다';
     setTimeout(()=>{ label.textContent = '주소 복사하기'; }, 1800);
   });
-})();
+}
 
 /* ============================================================
    8. 갤러리 (숨은 힌트 포함)
    ============================================================ */
-const TAB_HINTS = ['본식 스냅 사진이 들어갈 자리입니다', '두 사람의 일상 사진이 들어갈 자리입니다', '함께한 여행 사진이 들어갈 자리입니다'];
-const TAB_COUNTS = [9, 6, 9];
+const TAB_HINTS = ['봄에 함께한 순간들이 들어갈 자리입니다', '여름에 함께한 순간들이 들어갈 자리입니다', '가을에 함께한 순간들이 들어갈 자리입니다', '겨울에 함께한 순간들이 들어갈 자리입니다'];
+const TAB_COUNTS = [9, 9, 9, 9];
 const CLUE_MAP = { 1:'1', 3:'1', 5:'2', 7:'2' };
 
 function secretPassword(){
@@ -970,7 +1025,6 @@ function secretPassword(){
   const grid = document.getElementById('galleryGrid');
   const hintEl = document.getElementById('galleryHint');
   const tabs = document.querySelectorAll('.tab-btn');
-  const gasReady = CFG.GAS_URL.indexOf('YOUR_SCRIPT_ID')===-1;
   let currentTabIdx = 0;
 
   function renderTiles(items, tabIdx){
@@ -1014,7 +1068,7 @@ function secretPassword(){
       loadTab(idx, btn.dataset.tab);
     });
   });
-  loadTab(0, 'snap');
+  loadTab(0, 'spring');
 })();
 
 /* ============================================================
@@ -1058,7 +1112,6 @@ async function gasPost(payload){
   });
   return res.json();
 }
-const gasReady = CFG.GAS_URL.indexOf('YOUR_SCRIPT_ID')===-1;
 
 /* ============================================================
    11. 방명록
@@ -1187,7 +1240,7 @@ const gasReady = CFG.GAS_URL.indexOf('YOUR_SCRIPT_ID')===-1;
 /* ============================================================
    13. 계좌 아코디언
    ============================================================ */
-(function initAccounts(){
+function initAccounts(){
   function renderAccounts(el, list){
     el.innerHTML = '';
     list.forEach(a=>{
@@ -1222,7 +1275,7 @@ const gasReady = CFG.GAS_URL.indexOf('YOUR_SCRIPT_ID')===-1;
       document.getElementById(head.dataset.acc).classList.toggle('open');
     });
   });
-})();
+}
 
 /* ============================================================
    14. 추억 공유 (하객 사진 업로드)
@@ -1323,6 +1376,18 @@ const gasReady = CFG.GAS_URL.indexOf('YOUR_SCRIPT_ID')===-1;
     if(!playing){ audio.play().then(()=>setPlaying(true)).catch(()=>{}); }
     document.removeEventListener('touchstart', autoStart);
   }, { once:true });
+})();
+
+/* ============================================================
+   18. 부트스트랩 — 구글 시트 값을 먼저 불러온 뒤 화면을 채웁니다
+   ============================================================ */
+(async function boot(){
+  await loadRemoteConfig();
+  initPeople();
+  initCountdown();
+  initCalendar();
+  initLocation();
+  initAccounts();
 })();
 </script>
 </body>
