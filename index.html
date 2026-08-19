@@ -403,11 +403,11 @@
     <p class="hero__names" style="z-index:3;position:relative"><span id="heroGroom">구정훈</span> <span class="heart">♥</span> <span id="heroBride">김예은</span></p>
 
     <div class="hero__photo">
-      <div class="hero__photo-inner"><span>메인 사진 (hero.jpg)</span></div>
+      <div class="hero__photo-inner" id="heroPhotoInner"><span>메인 사진 (hero.jpg)</span></div>
     </div>
 
     <p class="hero__date" id="heroDate">2026. 11. 22. SUNDAY 12:00</p>
-    <p class="hero__venue" id="heroVenue">라온컨벤션 3층 그랜드홀</p>
+    <p class="hero__venue" id="heroVenue">호텔 라뷔포레</p>
     <div class="scroll-hint" aria-hidden="true">
       <span class="icon" data-icon="arrowDown"></span>
     </div>
@@ -474,17 +474,17 @@
   <!-- ================= 오시는 길 ================= -->
   <section id="location" class="alt">
     <div class="loc-head reveal">
-      <p class="loc-venue" id="venueName">라온컨벤션 3층 그랜드홀</p>
-      <p class="loc-addr" id="addressText">서울특별시 강남구 테헤란로 123</p>
+      <p class="loc-venue" id="venueName">호텔 라뷔포레</p>
+      <p class="loc-addr" id="addressText">경기 수원시 팔달구 인계동 1133-8</p>
     </div>
     <div class="map-box reveal" id="kakaoMapEmbed">
-      <!-- 카카오맵 약도 - 호텔 라뷔포레 (https://place.map.kakao.com/1397534731) -->
-      <div id="daumRoughmapContainer1787119492293" class="root_daum_roughmap root_daum_roughmap_landing"></div>
+      <!-- 카카오맵 약도 -->
+      <div id="daumRoughmapContainer1787120139565" class="root_daum_roughmap root_daum_roughmap_landing"></div>
       <script charset="UTF-8" class="daum_roughmap_loader_script" src="https://ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js"></script>
       <script charset="UTF-8">
         new daum.roughmap.Lander({
-          "timestamp" : "1787119492293",
-          "key" : "t8u76t5z5gy",
+          "timestamp" : "1787120139565",
+          "key" : "su7p2ov26r9",
           "mapWidth" : "360",
           "mapHeight" : "240"
         }).render();
@@ -500,22 +500,22 @@
       <div class="transport-card">
         <span class="icon" data-icon="subway"></span>
         <h4>지하철</h4>
-        <p id="tpSubway">2호선 선릉역 4번 출구<br>도보 5분</p>
+        <p id="tpSubway">지하철 안내 (추후 입력)</p>
       </div>
       <div class="transport-card">
         <span class="icon" data-icon="bus"></span>
         <h4>버스</h4>
-        <p id="tpBus">146 · 341 · 360<br>라온컨벤션 앞 하차</p>
+        <p id="tpBus">버스 안내 (추후 입력)</p>
       </div>
       <div class="transport-card">
         <span class="icon" data-icon="car"></span>
         <h4>자가용</h4>
-        <p id="tpCar">내비게이션에<br>"라온컨벤션" 검색</p>
+        <p id="tpCar">내비게이션에<br>"호텔 라뷔포레" 검색</p>
       </div>
       <div class="transport-card">
         <span class="icon" data-icon="parking"></span>
         <h4>주차</h4>
-        <p id="tpParking">건물 지하 B1~B3<br>2시간 무료</p>
+        <p id="tpParking">주차 안내 (추후 입력)</p>
       </div>
     </div>
   </section>
@@ -723,18 +723,18 @@ const CFG = {
 
   INTRO_COPY: '서로의 계절을 지나<br>같은 방향을 바라보게 된 두 사람이<br>이제 하나의 길을 걷고자 합니다.<br><br>귀한 걸음으로 축복해 주시면<br>더없는 기쁨으로 간직하겠습니다.',
 
-  VENUE_NAME: '라온컨벤션 3층 그랜드홀',
-  ADDRESS:    '서울특별시 강남구 테헤란로 123',
+  VENUE_NAME: '호텔 라뷔포레',
+  ADDRESS:    '경기 수원시 팔달구 인계동 1133-8',
   KAKAO_NAV:  '(카카오맵 공유 링크)',
   NAVER_NAV:  '(네이버지도 공유 링크)',
   TMAP_NAV:   '(티맵 공유 링크)',
   PAGE_URL:   location.href,
 
   TRANSPORT: {
-    subway: '2호선 선릉역 4번 출구<br>도보 5분',
-    bus: '146 · 341 · 360<br>라온컨벤션 앞 하차',
-    car: '내비게이션에<br>"라온컨벤션" 검색',
-    parking: '건물 지하 B1~B3<br>2시간 무료'
+    subway: '지하철 안내 (추후 입력)',
+    bus: '버스 안내 (추후 입력)',
+    car: '내비게이션에<br>"호텔 라뷔포레" 검색',
+    parking: '주차 안내 (추후 입력)'
   },
 
   ACCOUNTS: {
@@ -862,6 +862,22 @@ async function loadRemoteConfig(){
   }
 }
 
+// 갤러리 드라이브 폴더 안 '메인 사진' 폴더의 사진을 히어로 배경으로 사용합니다.
+// 사진이 없으면 로컬 hero.jpg를 그대로 씁니다.
+async function loadMainPhoto(){
+  if(!gasReady) return;
+  try{
+    const res = await fetch(CFG.GAS_URL+'?action=mainPhoto');
+    const data = await res.json();
+    if(data && data.ok && data.url){
+      document.getElementById('heroPhotoInner').style.backgroundImage =
+        "url('"+data.url+"'), url('hero.jpg')";
+    }
+  }catch(err){
+    // 불러오지 못하면 로컬 hero.jpg를 그대로 사용합니다.
+  }
+}
+
 /* ============================================================
    3. 인물/예식 정보 바인딩
    ============================================================ */
@@ -873,9 +889,8 @@ function initPeople(){
   const w = CFG.WEDDING;
   const dowKR = ['일','월','화','수','목','금','토'][w.getDay()];
   const dowEN = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'][w.getDay()];
-  const hh24 = w.getHours(), ampm = hh24 < 12 ? 'AM' : 'PM', hh12 = ((hh24 + 11) % 12) + 1;
   document.getElementById('heroDate').textContent =
-    w.getFullYear()+'. '+String(w.getMonth()+1).padStart(2,'0')+'. '+String(w.getDate()).padStart(2,'0')+'. '+dowEN+' '+hh12+':'+String(w.getMinutes()).padStart(2,'0');
+    w.getFullYear()+'. '+String(w.getMonth()+1).padStart(2,'0')+'. '+String(w.getDate()).padStart(2,'0')+'. '+dowEN+' '+String(w.getHours()).padStart(2,'0')+':'+String(w.getMinutes()).padStart(2,'0');
   document.getElementById('heroVenue').textContent = CFG.VENUE_NAME;
   document.getElementById('introCopy').innerHTML = CFG.INTRO_COPY;
 
@@ -1397,6 +1412,7 @@ function initAccounts(){
    18. 부트스트랩 — 구글 시트 값을 먼저 불러온 뒤 화면을 채웁니다
    ============================================================ */
 (async function boot(){
+  loadMainPhoto();
   await loadRemoteConfig();
   initPeople();
   initCountdown();

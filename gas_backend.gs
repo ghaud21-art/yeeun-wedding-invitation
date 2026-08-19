@@ -18,7 +18,7 @@
  */
 
 const SHEET_ID       = '1ILxUsi45jWYk8zIt1UrmVUMmu4OIY5ghSEJBETHEARc'; // "예은이 청첩장 데이터" 스프레드시트
-const GALLERY_FOLDER = '1WrPSohG8a26JBYpMrHVU_CWqMYVFw6eq'; // "예은이 청첩장 - 갤러리" (봄/여름/가을/겨울 하위 폴더 포함)
+const GALLERY_FOLDER = '1WrPSohG8a26JBYpMrHVU_CWqMYVFw6eq'; // "예은이 청첩장 - 갤러리" (봄/여름/가을/겨울/메인 사진 하위 폴더 포함)
 const GUEST_FOLDER   = '1O9aOtl2yP6gcg83p6m5wlFDbAuP6N5jH'; // "예은이 청첩장 - 하객사진"
 const MAKE_WEBHOOK   = 'YOUR_MAKE_WEBHOOK_URL';
 
@@ -34,6 +34,9 @@ const GALLERY_TAB_FOLDER = {
   fall: '가을',
   winter: '겨울'
 };
+
+// 갤러리 폴더 하위에 이 이름의 서브폴더를 만들고 사진 1장을 넣으면 히어로 메인 사진으로 쓰인다.
+const MAIN_PHOTO_FOLDER_NAME = '메인 사진';
 
 /* ---------------- 공통 유틸 ---------------- */
 
@@ -81,6 +84,7 @@ function doGet(e) {
     if (action === 'guestbook') return jsonOut_(getGuestbook_());
     if (action === 'gallery') return jsonOut_(getGallery_(e.parameter.tab));
     if (action === 'guestPhotos') return jsonOut_(getGuestPhotos_());
+    if (action === 'mainPhoto') return jsonOut_(getMainPhoto_());
     if (action === 'config') return jsonOut_({ ok: true, config: getConfigMap_(), accounts: getAccountsMap_() });
     return jsonOut_({ ok: false, error: 'unknown action' });
   } catch (err) {
@@ -115,6 +119,20 @@ function getGallery_(tab) {
     items.push({ id: f.getId(), name: f.getName(), url: driveImageUrl_(f.getId()) });
   }
   return { ok: true, items: items };
+}
+
+// 갤러리 폴더 하위 '메인 사진' 폴더에서 이미지 1장을 찾아 반환한다(히어로 배경용).
+function getMainPhoto_() {
+  const root = DriveApp.getFolderById(GALLERY_FOLDER);
+  const subFolders = root.getFoldersByName(MAIN_PHOTO_FOLDER_NAME);
+  if (!subFolders.hasNext()) return { ok: true, url: null };
+  const files = subFolders.next().getFiles();
+  while (files.hasNext()) {
+    const f = files.next();
+    if (String(f.getMimeType()).indexOf('image/') !== 0) continue;
+    return { ok: true, url: driveImageUrl_(f.getId()) };
+  }
+  return { ok: true, url: null };
 }
 
 function getGuestPhotos_() {
@@ -184,14 +202,14 @@ function seedDefaultConfig_(sheet) {
     ['예식 날짜', '2027-05-22', 'YYYY-MM-DD'],
     ['예식 시간', '14:00', '24시간제 HH:MM'],
     ['소개 문구', '서로의 계절을 지나\n같은 방향을 바라보게 된 두 사람이\n이제 하나의 길을 걷고자 합니다.\n\n귀한 걸음으로 축복해 주시면\n더없는 기쁨으로 간직하겠습니다.', '줄바꿈은 셀 안에서 Alt+Enter'],
-    ['예식장 이름', '라온컨벤션 3층 그랜드홀', ''],
-    ['주소', '서울특별시 강남구 테헤란로 123', ''],
+    ['예식장 이름', '호텔 라뷔포레', ''],
+    ['주소', '경기 수원시 팔달구 인계동 1133-8', ''],
     ['카카오맵 링크', '', '카카오맵 앱에서 장소 공유 링크 복사'],
     ['네이버지도 링크', '', ''],
     ['티맵 링크', '', ''],
-    ['지하철 안내', '2호선 선릉역 4번 출구\n도보 5분', '줄바꿈은 셀 안에서 Alt+Enter'],
-    ['버스 안내', '146 · 341 · 360\n라온컨벤션 앞 하차', ''],
-    ['자가용 안내', '내비게이션에 "라온컨벤션" 검색', ''],
+    ['지하철 안내', '지하철 안내 (추후 입력)', '줄바꿈은 셀 안에서 Alt+Enter'],
+    ['버스 안내', '버스 안내 (추후 입력)', ''],
+    ['자가용 안내', '내비게이션에 "호텔 라뷔포레" 검색', ''],
     ['주차 안내', '건물 지하 B1~B3\n2시간 무료', ''],
     ['카카오페이 링크', '', '카카오페이 송금 요청 링크']
   ].forEach(row => sheet.appendRow(row));
