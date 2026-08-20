@@ -254,7 +254,6 @@
     display:flex;align-items:center;justify-content:center;color:var(--ink-soft);overflow:hidden;
   }
   .gallery-tile img{width:100%;height:100%;object-fit:cover;}
-  .clue-digit{position:absolute;right:6px;bottom:4px;font-family:var(--serif);font-size:11px;color:rgba(110,106,88,.55);}
   .key-btn-row{display:flex;justify-content:center;margin-top:12px;}
   .key-btn{border:none;background:none;padding:6px;opacity:.55;transition:opacity .3s;}
   .key-btn:hover{opacity:1;}
@@ -370,6 +369,13 @@
   .secret-photo{margin:26px auto 0;width:78%;max-width:280px;display:flex;align-items:center;justify-content:center;}
   .secret-photo img{width:100%;filter:drop-shadow(0 6px 18px rgba(0,0,0,.35));}
   .secret-close{margin-top:26px;padding:10px 26px;border:1px solid rgba(244,240,227,.4);border-radius:999px;background:none;color:#F4F0E3;font-size:12px;letter-spacing:.08em;}
+
+  /* ---------- 사진 크게보기 ---------- */
+  .photo-lightbox{position:fixed;inset:0;z-index:95;background:rgba(20,18,14,.92);display:none;align-items:center;justify-content:center;padding:24px;}
+  .photo-lightbox.open{display:flex;}
+  .photo-lightbox img{max-width:100%;max-height:100%;border-radius:4px;}
+  .photo-lightbox__close{position:absolute;top:20px;right:20px;width:38px;height:38px;border-radius:50%;border:none;background:rgba(255,255,255,.14);color:#fff;display:flex;align-items:center;justify-content:center;}
+  .photo-lightbox__close .icon svg,.photo-lightbox__close svg{width:16px;height:16px;}
 
   /* ---------- 토스트 (dev/시스템 알림 전용) ---------- */
   .toast{
@@ -701,6 +707,13 @@
     <div class="secret-photo"><img src="열린 자물쇠.png" alt=""></div>
     <button class="secret-close" id="secretCloseBtn">돌아가기</button>
   </div>
+</div>
+
+<div class="photo-lightbox" id="photoLightbox">
+  <button class="photo-lightbox__close" id="photoLightboxClose" aria-label="닫기">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+  </button>
+  <img id="photoLightboxImg" src="" alt="">
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1039,10 +1052,25 @@ function initLocation(){
 }
 
 /* ============================================================
-   8. 갤러리 (숨은 힌트 포함)
+   7.5 사진 크게보기 (라이트박스)
    ============================================================ */
-const TAB_COUNTS = [9, 9, 9, 9];
-const CLUE_MAP = { 1:'0', 3:'5', 5:'2', 7:'2' };
+const photoLightbox = document.getElementById('photoLightbox');
+const photoLightboxImg = document.getElementById('photoLightboxImg');
+function openLightbox(url){
+  photoLightboxImg.src = url;
+  photoLightbox.classList.add('open');
+}
+function closeLightbox(){
+  photoLightbox.classList.remove('open');
+  photoLightboxImg.src = '';
+}
+document.getElementById('photoLightboxClose').addEventListener('click', closeLightbox);
+photoLightbox.addEventListener('click', (e)=>{ if(e.target===photoLightbox) closeLightbox(); });
+
+/* ============================================================
+   8. 갤러리
+   ============================================================ */
+const GALLERY_PLACEHOLDER_COUNT = 6; // GAS_URL 미설정 시 개발용 미리보기 타일 수
 
 function secretPassword(){
   if(CFG.SECRET_PASSWORD) return CFG.SECRET_PASSWORD;
@@ -1056,37 +1084,36 @@ function secretPassword(){
   const tabs = document.querySelectorAll('.tab-btn');
   let currentTabIdx = 0;
 
-  function renderTiles(items, tabIdx){
+  // 실제 사진이 있으면 그만큼만, 없으면(GAS_URL 미설정 시) 미리보기 타일만 보여줍니다.
+  function renderTiles(items){
     grid.innerHTML = '';
-    const count = TAB_COUNTS[tabIdx];
-    for(let i=0;i<count;i++){
-      const tile = document.createElement('div'); tile.className='gallery-tile';
-      const photo = items && items[i];
-      if(photo){
+    if(items && items.length){
+      items.forEach(photo=>{
+        const tile = document.createElement('div'); tile.className='gallery-tile';
         const img=document.createElement('img'); img.src=photo.url; img.loading='lazy'; img.alt=photo.name||'';
-        img.addEventListener('click', ()=>window.open(photo.url,'_blank'));
+        img.addEventListener('click', ()=>openLightbox(photo.url));
         tile.appendChild(img);
-      } else {
+        grid.appendChild(tile);
+      });
+    } else if(!gasReady){
+      for(let i=0;i<GALLERY_PLACEHOLDER_COUNT;i++){
+        const tile = document.createElement('div'); tile.className='gallery-tile';
         tile.innerHTML = iconWrap('gallery');
+        grid.appendChild(tile);
       }
-      if(tabIdx===0 && CLUE_MAP[i]){
-        const clue=document.createElement('span'); clue.className='clue-digit'; clue.textContent=CLUE_MAP[i];
-        tile.appendChild(clue);
-      }
-      grid.appendChild(tile);
     }
   }
   function iconWrap(name){ return '<span class="icon" style="width:20px;height:20px">'+iconHtml(name)+'</span>'; }
 
   async function loadTab(tabIdx, tabKey){
     currentTabIdx = tabIdx;
-    if(!gasReady){ renderTiles(null, tabIdx); return; }
+    if(!gasReady){ renderTiles(null); return; }
     try{
       const res = await fetch(CFG.GAS_URL+'?action=gallery&tab='+encodeURIComponent(tabKey));
       const data = await res.json();
-      renderTiles(data.items, tabIdx);
+      renderTiles(data.items);
     }catch(err){
-      renderTiles(null, tabIdx);
+      renderTiles(null);
     }
   }
   tabs.forEach((btn,idx)=>{
@@ -1325,7 +1352,7 @@ function initAccounts(){
     items.forEach(it=>{
       const tile=document.createElement('div'); tile.className='gallery-tile';
       const img=document.createElement('img'); img.src=it.url; img.loading='lazy';
-      img.addEventListener('click', ()=>window.open(it.url,'_blank'));
+      img.addEventListener('click', ()=>openLightbox(it.url));
       tile.appendChild(img);
       grid.appendChild(tile);
     });
