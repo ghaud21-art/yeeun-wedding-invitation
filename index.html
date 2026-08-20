@@ -1434,10 +1434,13 @@ function initAccounts(){
     if(playing){ audio.pause(); setPlaying(false); }
     else { audio.play().then(()=>setPlaying(true)).catch(()=>showToast('재생을 시작할 수 없습니다')); }
   });
-  document.addEventListener('touchstart', function autoStart(){
+  // 브라우저 정책상 사용자 상호작용 없이는 소리 자동재생이 불가능해서,
+  // 페이지 첫 클릭/터치/키 입력 시점에 재생을 시도합니다(모바일 터치뿐 아니라 데스크톱 클릭도 포함).
+  function autoStart(){
     if(!playing){ audio.play().then(()=>setPlaying(true)).catch(()=>{}); }
-    document.removeEventListener('touchstart', autoStart);
-  }, { once:true });
+    ['touchstart','click','keydown'].forEach(ev=>document.removeEventListener(ev, autoStart));
+  }
+  ['touchstart','click','keydown'].forEach(ev=>document.addEventListener(ev, autoStart, { once:true }));
 })();
 
 /* ============================================================
