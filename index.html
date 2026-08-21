@@ -260,19 +260,60 @@
   .key-btn img{width:46px;mix-blend-mode:multiply;}
 
   /* ---------- 방명록 ---------- */
-  .gb-list{display:flex;flex-direction:column;gap:10px;}
-  .gb-card{background:var(--bg-input);border:1px solid var(--border-soft);border-radius:4px;padding:16px 18px;}
+  .gb-card{background:var(--bg-input);border:1px solid var(--border-soft);border-radius:4px;padding:16px 18px;position:relative;}
   .gb-card__head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
   .gb-card__name{font-size:12.5px;font-weight:600;color:var(--olive-d);}
   .gb-card__date{font-size:10.5px;color:var(--ink-soft);}
-  .gb-card__text{margin:8px 0 0;font-family:var(--serif);font-size:13px;font-weight:300;line-height:1.85;color:var(--ink);}
+  .gb-card__text{margin:8px 0 0;font-family:var(--serif);font-size:13px;font-weight:300;line-height:1.85;color:var(--ink);word-break:break-word;}
+  .gb-card__edit-btn{margin-top:8px;border:none;background:none;color:var(--ink-soft);font-size:11px;padding:2px 0;text-decoration:underline;}
   .gb-empty{text-align:center;padding:16px 0;font-size:12px;color:var(--ink-soft);}
-  .gb-form{display:flex;gap:8px;margin-top:14px;}
-  .gb-form input[type=text]{padding:11px;border:1px solid var(--border);border-radius:4px;font-size:12.5px;background:var(--bg-input);color:var(--ink);}
-  .gb-form .gb-name{width:72px;flex:none;}
-  .gb-form .gb-msg{flex:1;min-width:0;}
-  .gb-form button{flex:none;padding:0 16px;border:none;border-radius:4px;background:var(--olive);color:var(--bg-card);font-size:12.5px;transition:background .2s,transform .15s;}
-  .gb-form button:active{transform:scale(.96);}
+
+  .gb-letter-wrap{margin-top:2px;}
+  .gb-letter{
+    position:relative;aspect-ratio:1/1;
+    background:url('편지지.png') center/contain no-repeat;
+    display:flex;align-items:center;justify-content:center;
+    padding:19% 17%;box-sizing:border-box;
+  }
+  .gb-letter__empty{font-family:var(--serif);font-size:13px;color:var(--ink-soft);text-align:center;}
+  .gb-letter__content{text-align:center;max-height:100%;overflow:hidden;}
+  .gb-letter__name{margin:0;font-size:13px;font-weight:600;color:var(--olive-d);}
+  .gb-letter__date{margin:4px 0 0;font-size:10.5px;color:var(--ink-soft);}
+  .gb-letter__text{margin:14px 0 0;font-family:var(--serif);font-size:13px;font-weight:300;line-height:1.9;color:var(--ink);word-break:keep-all;}
+  .gb-letter__nav{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:12px;}
+  .gb-nav-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--bg-input);color:var(--ink-mid);display:flex;align-items:center;justify-content:center;}
+  .gb-nav-btn:disabled{opacity:.35;}
+  .gb-nav-btn svg{width:14px;height:14px;}
+  .gb-letter__count{font-size:11.5px;color:var(--ink-soft);min-width:44px;text-align:center;}
+  .gb-viewall-btn{display:block;margin:14px auto 0;padding:9px 20px;border-radius:999px;border:1px solid var(--border);background:var(--bg-input);color:var(--ink-mid);font-size:12px;}
+
+  .gb-form{margin-top:24px;display:flex;flex-direction:column;gap:8px;}
+  .gb-form__row{display:flex;gap:8px;}
+  .gb-form input{padding:11px;border:1px solid var(--border);border-radius:4px;font-size:12.5px;background:var(--bg-input);color:var(--ink);min-width:0;}
+  .gb-form .gb-name{flex:1;}
+  .gb-form .gb-pw{width:100px;flex:none;letter-spacing:.15em;}
+  .gb-form .gb-msg{flex:1;}
+  .gb-form button[type=submit]{flex:none;padding:0 16px;border:none;border-radius:4px;background:var(--olive);color:var(--bg-card);font-size:12.5px;transition:background .2s,transform .15s;}
+  .gb-form button[type=submit]:active{transform:scale(.96);}
+  .gb-form__hint{margin:0 2px;font-size:10.5px;color:var(--ink-soft);}
+
+  /* ---------- 방명록 전체보기 ---------- */
+  .gb-overlay{position:fixed;inset:0;z-index:92;background:var(--bg-card);display:none;flex-direction:column;}
+  .gb-overlay.open{display:flex;}
+  .gb-overlay__header{position:relative;display:flex;align-items:center;padding:16px 18px;border-bottom:1px solid var(--border-soft);flex:none;}
+  .gb-overlay__back{display:flex;align-items:center;gap:3px;border:none;background:none;color:var(--ink-mid);font-size:12.5px;padding:4px;}
+  .gb-overlay__back svg{width:16px;height:16px;}
+  .gb-overlay__title{margin:0;font-family:var(--serif);font-size:14px;color:var(--ink);position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);white-space:nowrap;}
+  .gb-overlay__list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px;display:flex;flex-direction:column;gap:10px;}
+
+  .gb-edit-form{margin-top:10px;display:flex;flex-direction:column;gap:6px;}
+  .gb-edit-form input,.gb-edit-form textarea{padding:9px;border:1px solid var(--border);border-radius:4px;font-size:12px;background:var(--bg-card);color:var(--ink);font-family:inherit;}
+  .gb-edit-form textarea{resize:vertical;min-height:54px;}
+  .gb-edit-error{margin:0;font-size:10.5px;color:var(--red);min-height:13px;}
+  .gb-edit-form__actions{display:flex;gap:6px;}
+  .gb-edit-form__actions button{flex:1;padding:8px 0;border:none;border-radius:4px;font-size:11.5px;}
+  .gb-edit-save{background:var(--olive);color:var(--bg-card);}
+  .gb-edit-cancel{background:var(--bg-alt);color:var(--ink-mid);}
 
   /* ---------- RSVP ---------- */
   .rsvp-title{margin:0 0 6px;text-align:center;font-family:var(--serif);font-size:15px;color:var(--ink);letter-spacing:.06em;}
@@ -374,8 +415,13 @@
   .photo-lightbox{position:fixed;inset:0;z-index:95;background:rgba(20,18,14,.92);display:none;align-items:center;justify-content:center;padding:24px;}
   .photo-lightbox.open{display:flex;}
   .photo-lightbox img{max-width:100%;max-height:100%;border-radius:4px;}
-  .photo-lightbox__close{position:absolute;top:20px;right:20px;width:38px;height:38px;border-radius:50%;border:none;background:rgba(255,255,255,.14);color:#fff;display:flex;align-items:center;justify-content:center;}
+  .photo-lightbox__close{position:absolute;top:20px;right:20px;width:38px;height:38px;border-radius:50%;border:none;background:rgba(255,255,255,.14);color:#fff;display:flex;align-items:center;justify-content:center;z-index:2;}
   .photo-lightbox__close .icon svg,.photo-lightbox__close svg{width:16px;height:16px;}
+  .photo-lightbox__nav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,.14);color:#fff;display:flex;align-items:center;justify-content:center;z-index:2;}
+  .photo-lightbox__nav svg{width:18px;height:18px;}
+  .photo-lightbox__prev{left:12px;}
+  .photo-lightbox__next{right:12px;}
+  .photo-lightbox__nav:disabled{display:none;}
 
   /* ---------- 토스트 (dev/시스템 알림 전용) ---------- */
   .toast{
@@ -574,11 +620,38 @@
       <div class="eyebrow-pill" style="background:var(--bg-alt)">방명록</div>
       <span class="eyebrow-heart">♥</span>
     </div>
-    <div class="gb-list reveal" id="gbList"></div>
+
+    <div class="gb-letter-wrap reveal">
+      <div class="gb-letter" id="gbLetter">
+        <div class="gb-letter__empty" id="gbLetterEmpty">가장 먼저 축하 메시지를 남겨보세요</div>
+        <div class="gb-letter__content" id="gbLetterContent" style="display:none">
+          <p class="gb-letter__name" id="gbLetterName"></p>
+          <p class="gb-letter__date" id="gbLetterDate"></p>
+          <p class="gb-letter__text" id="gbLetterText"></p>
+        </div>
+      </div>
+      <div class="gb-letter__nav">
+        <button type="button" class="gb-nav-btn" id="gbPrevBtn" aria-label="이전 편지">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"></path></svg>
+        </button>
+        <span class="gb-letter__count" id="gbLetterCount"></span>
+        <button type="button" class="gb-nav-btn" id="gbNextBtn" aria-label="다음 편지">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"></path></svg>
+        </button>
+      </div>
+      <button type="button" class="gb-viewall-btn" id="gbViewAllBtn">방명록 전체보기</button>
+    </div>
+
     <form class="gb-form reveal" id="guestbookForm">
-      <input type="text" class="gb-name" id="gbName" placeholder="이름" required>
-      <input type="text" class="gb-msg" id="gbMsg" placeholder="축하의 마음을 남겨주세요" required>
-      <button type="submit" id="gbSubmit">등록</button>
+      <div class="gb-form__row">
+        <input type="text" class="gb-name" id="gbName" placeholder="이름" required>
+        <input type="text" class="gb-pw" id="gbPw" placeholder="비밀번호" maxlength="4" inputmode="numeric" required>
+      </div>
+      <div class="gb-form__row">
+        <input type="text" class="gb-msg" id="gbMsg" placeholder="축하의 마음을 남겨주세요" required>
+        <button type="submit" id="gbSubmit">등록</button>
+      </div>
+      <p class="gb-form__hint">비밀번호는 나중에 내가 남긴 글을 수정할 때 필요해요</p>
     </form>
   </section>
 
@@ -713,7 +786,24 @@
   <button class="photo-lightbox__close" id="photoLightboxClose" aria-label="닫기">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"></path></svg>
   </button>
+  <button class="photo-lightbox__nav photo-lightbox__prev" id="photoLightboxPrev" aria-label="이전 사진">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"></path></svg>
+  </button>
   <img id="photoLightboxImg" src="" alt="">
+  <button class="photo-lightbox__nav photo-lightbox__next" id="photoLightboxNext" aria-label="다음 사진">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"></path></svg>
+  </button>
+</div>
+
+<div class="gb-overlay" id="gbOverlay">
+  <div class="gb-overlay__header">
+    <button type="button" class="gb-overlay__back" id="gbOverlayBack">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"></path></svg>
+      뒤로가기
+    </button>
+    <p class="gb-overlay__title">방명록 전체보기</p>
+  </div>
+  <div class="gb-overlay__list" id="gbOverlayList"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1056,16 +1146,45 @@ function initLocation(){
    ============================================================ */
 const photoLightbox = document.getElementById('photoLightbox');
 const photoLightboxImg = document.getElementById('photoLightboxImg');
-function openLightbox(url){
-  photoLightboxImg.src = url;
+const photoLightboxPrev = document.getElementById('photoLightboxPrev');
+const photoLightboxNext = document.getElementById('photoLightboxNext');
+let lightboxItems = [];
+let lightboxIdx = 0;
+
+function updateLightboxImg(){
+  photoLightboxImg.src = lightboxItems[lightboxIdx];
+  const multi = lightboxItems.length > 1;
+  photoLightboxPrev.disabled = !multi;
+  photoLightboxNext.disabled = !multi;
+}
+// urls: 같은 갤러리/그리드에 있는 사진 url 배열, idx: 클릭한 사진의 위치 — 좌우로 넘기며 볼 수 있게 함
+function openLightbox(urls, idx){
+  lightboxItems = Array.isArray(urls) ? urls : [urls];
+  lightboxIdx = idx || 0;
+  updateLightboxImg();
   photoLightbox.classList.add('open');
 }
 function closeLightbox(){
   photoLightbox.classList.remove('open');
   photoLightboxImg.src = '';
 }
+function lightboxPrev(){ lightboxIdx = (lightboxIdx - 1 + lightboxItems.length) % lightboxItems.length; updateLightboxImg(); }
+function lightboxNext(){ lightboxIdx = (lightboxIdx + 1) % lightboxItems.length; updateLightboxImg(); }
 document.getElementById('photoLightboxClose').addEventListener('click', closeLightbox);
+photoLightboxPrev.addEventListener('click', lightboxPrev);
+photoLightboxNext.addEventListener('click', lightboxNext);
 photoLightbox.addEventListener('click', (e)=>{ if(e.target===photoLightbox) closeLightbox(); });
+(function initLightboxSwipe(){
+  let startX = null;
+  photoLightbox.addEventListener('touchstart', (e)=>{ startX = e.touches[0].clientX; }, {passive:true});
+  photoLightbox.addEventListener('touchend', (e)=>{
+    if(startX===null || lightboxItems.length<2) return;
+    const dx = e.changedTouches[0].clientX - startX;
+    startX = null;
+    if(Math.abs(dx) < 40) return;
+    if(dx < 0) lightboxNext(); else lightboxPrev();
+  }, {passive:true});
+})();
 
 /* ============================================================
    8. 갤러리
@@ -1088,10 +1207,11 @@ function secretPassword(){
   function renderTiles(items){
     grid.innerHTML = '';
     if(items && items.length){
-      items.forEach(photo=>{
+      const urls = items.map(photo=>photo.url);
+      items.forEach((photo,idx)=>{
         const tile = document.createElement('div'); tile.className='gallery-tile';
         const img=document.createElement('img'); img.src=photo.url; img.loading='lazy'; img.alt=photo.name||'';
-        img.addEventListener('click', ()=>openLightbox(photo.url));
+        img.addEventListener('click', ()=>openLightbox(urls, idx));
         tile.appendChild(img);
         grid.appendChild(tile);
       });
@@ -1174,46 +1294,156 @@ async function gasPost(payload){
 (function initGuestbook(){
   const form = document.getElementById('guestbookForm');
   const btn = document.getElementById('gbSubmit');
-  const list = document.getElementById('gbList');
 
-  function renderList(items){
-    list.innerHTML = '';
-    if(!items || !items.length){
-      list.innerHTML = '<div class="gb-empty">가장 먼저 축하 메시지를 남겨보세요</div>';
+  const letterEl = document.getElementById('gbLetter');
+  const letterEmpty = document.getElementById('gbLetterEmpty');
+  const letterContent = document.getElementById('gbLetterContent');
+  const letterName = document.getElementById('gbLetterName');
+  const letterDate = document.getElementById('gbLetterDate');
+  const letterText = document.getElementById('gbLetterText');
+  const prevBtn = document.getElementById('gbPrevBtn');
+  const nextBtn = document.getElementById('gbNextBtn');
+  const countEl = document.getElementById('gbLetterCount');
+  const viewAllBtn = document.getElementById('gbViewAllBtn');
+
+  const overlay = document.getElementById('gbOverlay');
+  const overlayList = document.getElementById('gbOverlayList');
+  const overlayBack = document.getElementById('gbOverlayBack');
+
+  let items = [];
+  let currentIdx = 0;
+
+  function formatGbDate(ts){
+    const d = ts ? new Date(ts) : null;
+    return d ? (d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')) : '';
+  }
+
+  function renderLetter(){
+    if(!items.length){
+      letterEmpty.style.display = '';
+      letterContent.style.display = 'none';
+      countEl.textContent = '';
+      prevBtn.disabled = true; nextBtn.disabled = true;
+      return;
+    }
+    letterEmpty.style.display = 'none';
+    letterContent.style.display = '';
+    const it = items[currentIdx];
+    letterName.textContent = it.name;
+    letterDate.textContent = formatGbDate(it.timestamp);
+    letterText.textContent = it.message;
+    countEl.textContent = (currentIdx+1)+' / '+items.length;
+    prevBtn.disabled = currentIdx <= 0;
+    nextBtn.disabled = currentIdx >= items.length-1;
+  }
+  prevBtn.addEventListener('click', ()=>{ if(currentIdx>0){ currentIdx--; renderLetter(); } });
+  nextBtn.addEventListener('click', ()=>{ if(currentIdx<items.length-1){ currentIdx++; renderLetter(); } });
+  (function initLetterSwipe(){
+    let startX = null;
+    letterEl.addEventListener('touchstart', (e)=>{ startX = e.touches[0].clientX; }, {passive:true});
+    letterEl.addEventListener('touchend', (e)=>{
+      if(startX===null) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      startX = null;
+      if(Math.abs(dx) < 40) return;
+      if(dx < 0 && currentIdx < items.length-1){ currentIdx++; renderLetter(); }
+      else if(dx > 0 && currentIdx > 0){ currentIdx--; renderLetter(); }
+    }, {passive:true});
+  })();
+
+  function openEditForm(cardEl, it){
+    if(cardEl.querySelector('.gb-edit-form')) return;
+    const editBtn = cardEl.querySelector('.gb-card__edit-btn');
+    editBtn.style.display = 'none';
+    const wrap = document.createElement('div'); wrap.className='gb-edit-form';
+    wrap.innerHTML =
+      '<input type="text" class="e-pw" placeholder="비밀번호" maxlength="4" inputmode="numeric">'+
+      '<input type="text" class="e-name" placeholder="이름">'+
+      '<textarea class="e-msg" placeholder="메시지"></textarea>'+
+      '<p class="gb-edit-error"></p>'+
+      '<div class="gb-edit-form__actions">'+
+        '<button type="button" class="gb-edit-cancel">취소</button>'+
+        '<button type="button" class="gb-edit-save">저장</button>'+
+      '</div>';
+    wrap.querySelector('.e-name').value = it.name;
+    wrap.querySelector('.e-msg').value = it.message;
+    cardEl.appendChild(wrap);
+    const errEl = wrap.querySelector('.gb-edit-error');
+    wrap.querySelector('.gb-edit-cancel').addEventListener('click', ()=>{
+      wrap.remove(); editBtn.style.display='';
+    });
+    wrap.querySelector('.gb-edit-save').addEventListener('click', async ()=>{
+      const password = wrap.querySelector('.e-pw').value.trim();
+      const name = wrap.querySelector('.e-name').value.trim();
+      const message = wrap.querySelector('.e-msg').value.trim();
+      if(!password || !name || !message){ errEl.textContent = '모든 항목을 입력해 주세요'; return; }
+      const saveBtn = wrap.querySelector('.gb-edit-save');
+      saveBtn.disabled = true;
+      try{
+        const res = await gasPost({ action:'editGuestbook', id: it.id, password, name, message });
+        if(res && res.ok){
+          it.name = name; it.message = message;
+          wrap.remove(); editBtn.style.display='';
+          renderOverlayList();
+          renderLetter();
+        } else {
+          errEl.textContent = (res && res.error) || '수정에 실패했습니다';
+        }
+      }catch(err){
+        errEl.textContent = '수정에 실패했습니다';
+      }finally{
+        saveBtn.disabled = false;
+      }
+    });
+  }
+
+  function renderOverlayList(){
+    overlayList.innerHTML = '';
+    if(!items.length){
+      overlayList.innerHTML = '<div class="gb-empty">가장 먼저 축하 메시지를 남겨보세요</div>';
       return;
     }
     items.forEach(it=>{
       const el = document.createElement('div'); el.className='gb-card';
-      const d = it.timestamp ? new Date(it.timestamp) : null;
-      const dateStr = d ? (d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')) : '';
       el.innerHTML =
         '<div class="gb-card__head"><span class="gb-card__name"></span><span class="gb-card__date"></span></div>'+
-        '<p class="gb-card__text"></p>';
+        '<p class="gb-card__text"></p>'+
+        '<button type="button" class="gb-card__edit-btn">수정</button>';
       el.querySelector('.gb-card__name').textContent = it.name;
-      el.querySelector('.gb-card__date').textContent = dateStr;
+      el.querySelector('.gb-card__date').textContent = formatGbDate(it.timestamp);
       el.querySelector('.gb-card__text').textContent = it.message;
-      list.appendChild(el);
+      el.querySelector('.gb-card__edit-btn').addEventListener('click', ()=>openEditForm(el, it));
+      overlayList.appendChild(el);
     });
   }
+
+  viewAllBtn.addEventListener('click', ()=>overlay.classList.add('open'));
+  overlayBack.addEventListener('click', ()=>overlay.classList.remove('open'));
+
   async function loadList(){
-    if(!gasReady){ renderList([]); return; }
+    if(!gasReady){ items = []; renderLetter(); renderOverlayList(); return; }
     try{
       const res = await fetch(CFG.GAS_URL+'?action=guestbook');
       const data = await res.json();
-      renderList(data.items);
-    }catch(err){ renderList([]); }
+      items = data.items || [];
+      currentIdx = 0;
+      renderLetter();
+      renderOverlayList();
+    }catch(err){ items = []; renderLetter(); renderOverlayList(); }
   }
+
   form.addEventListener('submit', async (e)=>{
     e.preventDefault();
     const name = document.getElementById('gbName').value.trim();
+    const password = document.getElementById('gbPw').value.trim();
     const message = document.getElementById('gbMsg').value.trim();
-    if(!name || !message) return;
+    if(!name || !password || !message) return;
     btn.disabled = true;
     try{
       if(!gasReady){
         showToast('GAS_URL 설정 후 이용 가능합니다');
       } else {
-        await gasPost({ action:'guestbook', name, message });
+        await gasPost({ action:'guestbook', name, password, message });
         form.reset();
         loadList();
       }
@@ -1349,10 +1579,11 @@ function initAccounts(){
   function renderItems(items){
     grid.innerHTML = '';
     if(!items || !items.length) return;
-    items.forEach(it=>{
+    const urls = items.map(it=>it.url);
+    items.forEach((it,idx)=>{
       const tile=document.createElement('div'); tile.className='gallery-tile';
       const img=document.createElement('img'); img.src=it.url; img.loading='lazy';
-      img.addEventListener('click', ()=>openLightbox(it.url));
+      img.addEventListener('click', ()=>openLightbox(urls, idx));
       tile.appendChild(img);
       grid.appendChild(tile);
     });

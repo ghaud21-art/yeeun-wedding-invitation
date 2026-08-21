@@ -10,7 +10,7 @@
  * 시트 탭은 첫 조회/저장 시 자동으로 만들어지고, 그중 '설정'과 '계좌' 탭은
  * 처음 만들어질 때 예시 값이 자동으로 채워진다. 스프레드시트를 열어 그 값을
  * 원하는 내용으로 바꾸면(친구를 편집자로 초대해도 됨) 청첩장 페이지에 바로 반영된다.
- *   - 방명록: 타임스탬프 | 이름 | 메시지
+ *   - 방명록: 타임스탬프 | 이름 | 메시지 | 비밀번호 (작성자가 나중에 수정할 때 사용, 조회 응답엔 노출 안 함)
  *   - 참석여부: 타임스탬프 | 이름 | 연락처 | 하객측 | 참석여부 | 식사여부 | 동행인원
  *   - 게스트사진: 타임스탬프 | 파일명 | 파일URL | 업로더
  *   - 설정: 항목 | 내용 | 입력 예시   (신랑/신부 이름, 날짜, 장소, 교통 안내 등)
@@ -95,13 +95,15 @@ function doGet(e) {
 }
 
 function getGuestbook_() {
-  const sheet = getSheet_(SHEET_GUESTBOOK, [['타임스탬프', '이름', '메시지']]);
+  const sheet = getSheet_(SHEET_GUESTBOOK, [['타임스탬프', '이름', '메시지', '비밀번호']]);
   const values = sheet.getDataRange().getValues();
   const rows = [];
   for (let i = 1; i < values.length; i++) {
     const r = values[i];
     if (!r[1]) continue;
-    rows.push({ timestamp: r[0], name: r[1], message: r[2] });
+    // id는 실제 시트 행 번호(1-indexed) — 수정 요청 시 이 번호로 행을 다시 찾는다.
+    // 비밀번호는 조회 응답에 절대 포함하지 않는다.
+    rows.push({ id: i + 1, timestamp: r[0], name: r[1], message: r[2] });
   }
   rows.reverse();
   return { ok: true, items: rows };
@@ -239,6 +241,7 @@ function doPost(e) {
     const body = JSON.parse(e.postData.contents);
     const action = body.action;
     if (action === 'guestbook') return jsonOut_(saveGuestbook_(body));
+    if (action === 'editGuestbook') return jsonOut_(editGuestbook_(body));
     if (action === 'attend') return jsonOut_(saveAttend_(body));
     if (action === 'uploadPhoto') return jsonOut_(saveGuestPhoto_(body));
     return jsonOut_({ ok: false, error: 'unknown action' });
@@ -248,8 +251,21 @@ function doPost(e) {
 }
 
 function saveGuestbook_(body) {
-  const sheet = getSheet_(SHEET_GUESTBOOK, [['타임스탬프', '이름', '메시지']]);
-  sheet.appendRow([new Date(), body.name || '', body.message || '']);
+  const sheet = getSheet_(SHEET_GUESTBOOK, [['타임스탬프', '이름', '메시지', '비밀번호']]);
+  sheet.appendRow([new Date(), body.name || '', body.message || '', "'" + String(body.password || '').trim()]);
+  return { ok: true };
+}
+
+// 작성자가 남긴 비밀번호가 일치할 때만 이름/메시지를 수정한다.
+function editGuestbook_(body) {
+  const sheet = getSheet_(SHEET_GUESTBOOK, [['타임스탬프', '이름', '메시지', '비밀번호']]);
+  const id = Number(body.id);
+  if (!id || id < 2 || id > sheet.getLastRow()) return { ok: false, error: '글을 찾을 수 없습니다' };
+  const row = sheet.getRange(id, 1, 1, 4).getValues()[0];
+  const savedPw = String(row[3] || '').trim();
+  const inputPw = String(body.password || '').trim();
+  if (!savedPw || savedPw !== inputPw) return { ok: false, error: '비밀번호가 일치하지 않습니다' };
+  sheet.getRange(id, 2, 1, 2).setValues([[body.name || '', body.message || '']]);
   return { ok: true };
 }
 
