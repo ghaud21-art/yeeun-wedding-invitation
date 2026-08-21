@@ -260,12 +260,6 @@
   .key-btn img{width:46px;mix-blend-mode:multiply;}
 
   /* ---------- 방명록 ---------- */
-  .gb-card{background:var(--bg-input);border:1px solid var(--border-soft);border-radius:4px;padding:16px 18px;position:relative;}
-  .gb-card__head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
-  .gb-card__name{font-size:12.5px;font-weight:600;color:var(--olive-d);}
-  .gb-card__date{font-size:10.5px;color:var(--ink-soft);}
-  .gb-card__text{margin:8px 0 0;font-family:var(--serif);font-size:13px;font-weight:300;line-height:1.85;color:var(--ink);word-break:break-word;}
-  .gb-card__edit-btn{margin-top:8px;border:none;background:none;color:var(--ink-soft);font-size:11px;padding:2px 0;text-decoration:underline;}
   .gb-empty{text-align:center;padding:16px 0;font-size:12px;color:var(--ink-soft);}
 
   /* 작성 폼: 세로로 쌓인 필드 + 테두리 박스 */
@@ -290,6 +284,7 @@
     padding:20% 18%;box-sizing:border-box;
   }
   .gb-letter--empty{width:100%;}
+  .gb-letter--full{width:100%;flex:none;scroll-snap-align:none;}
   .gb-letter__empty{font-family:var(--serif);font-size:13px;color:var(--ink-soft);text-align:center;}
   .gb-letter__content{text-align:center;max-height:100%;display:flex;flex-direction:column;align-items:center;min-height:0;}
   .gb-letter__text{
@@ -1366,6 +1361,22 @@ async function gasPost(payload){
   });
 
   // 편지 한 통씩 옆으로 넘겨보는 캐러셀
+  function buildLetterCard(it, extraClass){
+    const card = document.createElement('div'); card.className='gb-letter'+(extraClass?' '+extraClass:'');
+    card.innerHTML =
+      '<div class="gb-letter__content">'+
+        '<p class="gb-letter__text"></p>'+
+        '<p class="gb-letter__name"></p>'+
+        '<p class="gb-letter__date"></p>'+
+      '</div>'+
+      '<button type="button" class="gb-card-edit-btn" aria-label="수정">'+editIconHtml()+'</button>';
+    card.querySelector('.gb-letter__text').textContent = it.message;
+    card.querySelector('.gb-letter__name').textContent = 'from. '+it.name;
+    card.querySelector('.gb-letter__date').textContent = formatGbDate(it.timestamp);
+    card.querySelector('.gb-card-edit-btn').addEventListener('click', ()=>openEditModal(it));
+    return card;
+  }
+
   function renderCarousel(){
     carousel.innerHTML = '';
     if(!items.length){
@@ -1374,42 +1385,17 @@ async function gasPost(payload){
       return;
     }
     swipeHint.style.display = items.length > 1 ? '' : 'none';
-    items.forEach(it=>{
-      const card = document.createElement('div'); card.className='gb-letter';
-      card.innerHTML =
-        '<div class="gb-letter__content">'+
-          '<p class="gb-letter__text"></p>'+
-          '<p class="gb-letter__name"></p>'+
-          '<p class="gb-letter__date"></p>'+
-        '</div>'+
-        '<button type="button" class="gb-card-edit-btn" aria-label="수정">'+editIconHtml()+'</button>';
-      card.querySelector('.gb-letter__text').textContent = it.message;
-      card.querySelector('.gb-letter__name').textContent = 'from. '+it.name;
-      card.querySelector('.gb-letter__date').textContent = formatGbDate(it.timestamp);
-      card.querySelector('.gb-card-edit-btn').addEventListener('click', ()=>openEditModal(it));
-      carousel.appendChild(card);
-    });
+    items.forEach(it=>carousel.appendChild(buildLetterCard(it)));
   }
 
-  // 전체보기 목록
+  // 전체보기 목록 — 카드 스타일 그대로, 세로로 쌓아서 보여줍니다.
   function renderOverlayList(){
     overlayList.innerHTML = '';
     if(!items.length){
       overlayList.innerHTML = '<div class="gb-empty">가장 먼저 축하 메시지를 남겨보세요</div>';
       return;
     }
-    items.forEach(it=>{
-      const el = document.createElement('div'); el.className='gb-card';
-      el.innerHTML =
-        '<div class="gb-card__head"><span class="gb-card__name"></span><span class="gb-card__date"></span></div>'+
-        '<p class="gb-card__text"></p>'+
-        '<button type="button" class="gb-card__edit-btn">수정</button>';
-      el.querySelector('.gb-card__name').textContent = it.name;
-      el.querySelector('.gb-card__date').textContent = formatGbDate(it.timestamp);
-      el.querySelector('.gb-card__text').textContent = it.message;
-      el.querySelector('.gb-card__edit-btn').addEventListener('click', ()=>openEditModal(it));
-      overlayList.appendChild(el);
-    });
+    items.forEach(it=>overlayList.appendChild(buildLetterCard(it, 'gb-letter--full')));
   }
 
   viewAllBtn.addEventListener('click', ()=>overlay.classList.add('open'));
